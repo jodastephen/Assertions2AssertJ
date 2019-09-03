@@ -2,6 +2,7 @@ package com.chainstaysoftware.testing
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiStatement
 
 /**
@@ -19,7 +20,10 @@ interface AssertHandler {
     * import should contain the full package including the class name in the first element.
     * The second element of the pair should include the method name to import.
     */
-   fun handle(project: Project, psiElement: PsiElement): Set<Pair<String, String>>
+   fun handle(psiFile: PsiFile, psiElement: PsiElement): Set<Pair<String, String>>
+
+   fun handleFile(psiFile: PsiFile) : Unit {
+   }
 
    /**
     * Returns the static imports required for the passed in AssertJ assert statement.
@@ -36,6 +40,9 @@ interface AssertHandler {
 
       if (newExpression.text.contains("assertThatExceptionOfType("))
          imports.add(Pair("org.assertj.core.api.Assertions", "assertThatExceptionOfType"))
+
+      if (newExpression.text.contains("assertThatIllegalArgumentException("))
+         imports.add(Pair("org.assertj.core.api.Assertions", "assertThatIllegalArgumentException"))
 
       return imports
    }

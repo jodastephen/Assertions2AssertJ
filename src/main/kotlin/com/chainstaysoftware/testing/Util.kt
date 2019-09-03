@@ -1,5 +1,6 @@
 package com.chainstaysoftware.testing
 
+import com.google.common.io.Files
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys
@@ -7,20 +8,17 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.Computable
-import com.intellij.psi.JavaPsiFacade
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiImportList
-import com.intellij.psi.PsiImportStatement
-import com.intellij.psi.PsiImportStaticStatement
-import com.intellij.psi.PsiManager
-import com.intellij.psi.PsiMethodCallExpression
-import com.intellij.psi.PsiPackageStatement
-import com.intellij.psi.PsiRecursiveElementVisitor
+import com.intellij.psi.*
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
 import com.siyeh.ig.psiutils.MethodCallUtils
+import java.io.File
+import java.io.PrintWriter
+import java.io.StringWriter
+import java.lang.RuntimeException
+import java.nio.charset.StandardCharsets
+import java.time.Instant
 import java.util.ArrayList
 
 
@@ -60,16 +58,22 @@ object Util {
     * Adds an import to the passed in psiFile.
     */
    fun addImport(project: Project, psiFile: PsiFile, qualifiedName: String) {
-      val layoutInflaterPsiClass = JavaPsiFacade.getInstance(project).findClass(qualifiedName, GlobalSearchScope.allScope(project))
-      val psiImportList = findElement(psiFile, PsiImportList::class.java)
+      try {
+         val layoutInflaterPsiClass = JavaPsiFacade.getInstance(project).findClass(qualifiedName, GlobalSearchScope.allScope(project))
+         val psiImportList = findElement(psiFile, PsiImportList::class.java)
 
-      if (psiImportList != null) {
-         if (psiImportList.children.any { it is PsiImportStatement && it.qualifiedName == qualifiedName }) {
-            // we already have the reference, do not add it
-            return
+         if (psiImportList != null) {
+            if (psiImportList.children.any { it is PsiImportStatement && it.qualifiedName == qualifiedName }) {
+               // we already have the reference, do not add it
+               return
+            }
+
+            val inflator = layoutInflaterPsiClass!!
+            val createImportStatement = JavaPsiFacade.getElementFactory(project).createImportStatement(inflator)
+            psiImportList.add(createImportStatement)
          }
-
-         psiImportList.add(JavaPsiFacade.getElementFactory(project).createImportStatement(layoutInflaterPsiClass!!))
+      } catch (ex : RuntimeException) {
+         Util.log(ex)
       }
    }
 
@@ -192,6 +196,23 @@ object Util {
       else
          null
 
+   fun getClass(element: PsiElement): PsiClass? =
+           if (element is PsiMethodCallExpression)
+              element.resolveMethod()?.containingClass
+           else
+              null
+
    fun isPsiFileSelected(event: AnActionEvent) =
       event.getData(PlatformDataKeys.PSI_FILE) != null
+
+   private val file = File("D:/intellij-log.txt")
+   fun log(str : String) {
+//      Files.append(Instant.now().toString() + ": " + str + "\n", file, StandardCharsets.UTF_8)
+   }
+
+   fun log(ex : RuntimeException) {
+      val buf = StringWriter()
+      ex.printStackTrace(PrintWriter(buf))
+      log(buf.toString())
+   }
 }

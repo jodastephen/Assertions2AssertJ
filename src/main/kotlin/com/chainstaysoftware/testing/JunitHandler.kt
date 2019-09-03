@@ -2,10 +2,7 @@ package com.chainstaysoftware.testing
 
 import com.chainstaysoftware.testing.Util.isQualifiedClass
 import com.intellij.openapi.project.Project
-import com.intellij.psi.JavaPsiFacade
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiExpression
-import com.intellij.psi.PsiExpressionList
+import com.intellij.psi.*
 
 /**
  * Handler to convert Junit Assertions (excluding assertThat) to AssertJ Assertions.
@@ -33,9 +30,9 @@ class JunitHandler : AssertHandler {
          "assertThat" != Util.getMethodName(psiElement)
 
 
-   override fun handle(project: Project, psiElement: PsiElement): Set<Pair<String, String>> =
+   override fun handle(psiFile: PsiFile, psiElement: PsiElement): Set<Pair<String, String>> =
       psiElement.children.map { child ->
-            refactorJunit(project, psiElement, child)
+            refactorJunit(psiFile.project, psiElement, child)
          }
          .flatten()
          .toSet()

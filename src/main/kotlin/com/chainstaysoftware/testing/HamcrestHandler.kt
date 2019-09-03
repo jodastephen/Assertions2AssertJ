@@ -2,14 +2,7 @@ package com.chainstaysoftware.testing
 
 import com.chainstaysoftware.testing.Util.isQualifiedClass
 import com.intellij.openapi.project.Project
-import com.intellij.psi.JavaPsiFacade
-import com.intellij.psi.PsiClassObjectAccessExpression
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiExpression
-import com.intellij.psi.PsiExpressionList
-import com.intellij.psi.PsiLiteralExpression
-import com.intellij.psi.PsiMethodCallExpression
-import com.intellij.psi.PsiReferenceExpression
+import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiImmediateClassType
 import com.intellij.psi.util.PsiTreeUtil
 
@@ -78,13 +71,13 @@ class HamcrestHandler : AssertHandler {
          .any { elem -> isQualifiedClass(elem, "org.hamcrest.CoreMatchers")
             || isQualifiedClass(elem, "org.hamcrest.Matchers")}
 
-   override fun handle(project: Project, psiElement: PsiElement): Set<Pair<String, String>> {
+   override fun handle(psiFile: PsiFile, psiElement: PsiElement): Set<Pair<String, String>> {
       val imports = mutableSetOf<Pair<String, String>>()
 
       psiElement.children
          .filter { child -> child is PsiExpressionList }
          .forEach { child ->
-            val imps = refactorHamcrest(project, psiElement, child as PsiExpressionList)
+            val imps = refactorHamcrest(psiFile.project, psiElement, child as PsiExpressionList)
             imports.addAll(imps)
          }
 

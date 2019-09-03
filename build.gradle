@@ -37,7 +37,7 @@ repositories {
 }
 
 intellij {
-   //version '173.0'
+   version '173.4674.60'
    pluginName 'Assertions2Assertj'
    updateSinceUntilBuild false
    type 'IC'

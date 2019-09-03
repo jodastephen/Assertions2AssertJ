@@ -48,7 +48,7 @@ object TestUtil {
          if (psiMethodCallExpression == null)
             Assertions.fail("Missing method call")
          else
-            handler.handle(project, psiMethodCallExpression)
+            handler.handle(myFile, psiMethodCallExpression)
       }
 
       ReadAction.run<IllegalStateException> {
