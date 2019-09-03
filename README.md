@@ -13,7 +13,7 @@ It will try and do the following:
 * Convert `assertEquals`, `assertTrue`, `assertFalse`, `assertNull`, `assertNotNull`, `assertSame`, `assertNotSame`, `assertThrows` and a few others to suitable AssertJ method calls.
 * Change `@Test` from class level to method level
 * Convert `@Test(enabled=false)` to `@Disabled` together with the description for disabling
-* Convert `@DataProvider` and `@Test(dataProvider=)` to '@ParameterizedTest' and `@MethodSource` using a naming convention approach to the provider name
+* Convert `@DataProvider` and `@Test(dataProvider=)` to `@ParameterizedTest` and `@MethodSource` using a naming convention approach to the provider name
 * Convert `@BeforeTest`, `@BeforeClass` and `@BeforeMethod` and the equivalent "after" annotations to `@BeforeAll`, `@BeforeEach` etc.
 
 The key point is that conversion is based on an AST representation of the code.
